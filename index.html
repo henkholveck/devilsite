@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets Junky: The Final Ledger</title>
+    <!-- Chosen Palette: Black Mass (Deep black, bone white, blood red) -->
+    <!-- Application Structure Plan: A single-page, scrolling declaration that begins with a mandatory disclaimer modal, forcing user consent to enter the space. The structure guides the user through a ritual of indictment: 1. The Declaration (opening statement). 2. The Lexicon of Cowardice (interactive list of client excuses). 3. The Anatomy of Decay (a symbolic donut chart visualizing client failings). 4. The Doctrine of Consequence (the core philosophy using Baphomet as a symbol of mirrored justice). 5. The Final Dispensation (a grid of "relics" that, when clicked, reveal a final judgment). 6. The Blog (a formal, styled post from the CEO). This linear, controlled flow turns the email's text into an unnerving, interactive sermon and testament. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Disclaimer -> Goal: Set Tone/Force Consent -> Viz/Presentation: Full-screen modal -> Interaction: Mandatory click to proceed. -> Justification: Creates a ritualistic entry point, making the user an active participant in their own indictment. -> Library/Method: HTML/JS.
+        - Report Info: Client excuses -> Goal: Expose/Indict -> Viz/Presentation: Interactive list of phrases -> Interaction: Hovering reveals a contemptuous translation of their empty words. -> Justification: Turns their platitudes into evidence of their spiritual rot. -> Library/Method: HTML/JS.
+        - Report Info: Reasons for failure -> Goal: Quantify/Indict -> Viz/Presentation: A donut chart titled "Anatomy of Decay" (Segments: Transactional Cowardice, Willful Neglect, Spiritual Apathy) -> Interaction: Clicking a segment scrolls to the relevant textual evidence. -> Justification: Presents their assholery as "data points" in a cold, clinical, and symbolic format. -> Library/Method: Chart.js/Canvas.
+        - Report Info: Baphomet/Equilibrium philosophy -> Goal: Assert Ideology -> Viz/Presentation: Stark text block anchored by a large, unsettling Sigil of Lucifer image. -> Interaction: None. -> Justification: Uses a potent occult symbol to frame the core philosophy, avoiding generic goth aesthetics for something more theologically severe. -> Library/Method: HTML/Image.
+        - Report Info: Final ticket offer -> Goal: Burden/Curse -> Viz/Presentation: A grid of "Cursed Relics" -> Interaction: Clicking an item opens a modal with a final, damning pronouncement, framing the purchase as a ritual of assuming a spiritual debt. -> Library/Method: HTML/JS.
+        - Report Info: Blog Post -> Goal: Formalize/Declare -> Viz/Presentation: A styled article section -> Interaction: Reading. -> Justification: Provides a formal, literary space for the CEO's final, damning statement, elevating it from a simple message to a published work. -> Library/Method: HTML/CSS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+        body {
+            background-color: #101010;
+            font-family: 'Inter', sans-serif;
+            color: #F5F5F5;
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .accent-color { color: #9B111E; }
+        .accent-bg { background-color: #9B111E; }
+        .accent-border { border-color: #9B111E; }
+        .light-bg { background-color: #1a1a1a; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .excuse-item:hover .excuse-quote {
+            opacity: 1;
+        }
+        .spinner {
+            border-top-color: #9B111E;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Blog Styles */
+        .blog-article .article-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 2rem;
+            letter-spacing: -0.025em;
+        }
+        .blog-article .article-meta {
+            color: #a3a3a3;
+            font-size: 0.95rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #404040;
+        }
+        .blog-article .article-content {
+            font-size: 1.15rem;
+            color: #a3a3a3;
+            padding-top: 2rem;
+            line-height: 1.7;
+        }
+        .blog-article .article-content p {
+            margin-bottom: 2rem;
+        }
+        .blog-article .lavey-quote {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: #1a1a1a;
+            border-left: 4px solid #9B111E;
+        }
+        .blog-article .lavey-quote p {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-style: italic;
+            color: #fafafa;
+            margin: 0;
+        }
+        .blog-article .quote-attribution {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #737373;
+            font-style: normal;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-95 transition-opacity duration-500">
+        <div class="max-w-xl w-full text-center">
+            <h2 class="text-4xl font-semibold accent-color">Acknowledge</h2>
+            <p class="text-lg text-neutral-300 mt-6 leading-relaxed">You are about to view a ledger of spiritual debt. This is not a place of commerce, but of consequence. By proceeding, you acknowledge your role in the events documented herein and accept the full weight of the accounting that follows. There are no saviors here.</p>
+            <button id="acknowledgeBtn" class="mt-8 px-8 py-3 border-2 accent-border text-lg font-semibold rounded-md hover:accent-bg hover:text-white transition-colors">I Acknowledge My Account</button>
+        </div>
+    </div>
+
+    <main id="mainContent" class="opacity-0 transition-opacity duration-1000">
+        <!-- Section: Header -->
+        <header id="top" class="h-screen flex flex-col justify-center items-center text-center p-4">
+            <h1 class="text-4xl md:text-6xl font-semibold">The Nature of the Work Has Changed</h1>
+            <p class="mt-4 text-lg text-neutral-400 max-w-2xl mx-auto">The silence has been instructive. In it, I have found a more honest form of accounting. The black candles burn steadily.</p>
+            <div class="absolute bottom-10 animate-bounce text-2xl accent-color">
+                ↓
+            </div>
+        </header>
+
+        <!-- Section: The Indictment -->
+        <section id="indictment" class="py-20 md:py-32 light-bg fade-in-section">
+            <div class="max-w-4xl mx-auto px-6 md:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl md:text-4xl font-semibold">Anatomy of Decay</h2>
+                    <p class="mt-4 text-lg text-neutral-400">Below is a quantitative analysis of the spiritual rot that precipitated this end. These are not excuses; they are data points of your collective character. Click a segment to view the corresponding evidence.</p>
+                </div>
+                <div class="chart-container my-12 md:my-16">
+                    <canvas id="decayChart"></canvas>
+                </div>
+                <div id="evidence" class="mt-12 text-center">
+                     <h3 class="text-2xl font-semibold">A Lexicon of Cowardice</h3>
+                     <p class="mt-2 text-neutral-400">Your words, translated with the clarity you lacked.</p>
+                     <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                        <div class="excuse-item relative p-6 border border-neutral-700 rounded-md bg-[#151515]">
+                            <p class="text-lg font-medium text-neutral-200">"Just getting caught up."</p>
+                            <p class="excuse-quote text-base accent-color mt-2 opacity-0 transition-opacity duration-300">Translation: My convenience outweighs your existence.</p>
+                        </div>
+                        <div class="excuse-item relative p-6 border border-neutral-700 rounded-md bg-[#151515]">
+                            <p class="text-lg font-medium text-neutral-200">"Can you follow up?"</p>
+                             <p class="excuse-quote text-base accent-color mt-2 opacity-0 transition-opacity duration-300">Translation: Perform your own demise for my approval.</p>
+                       </div>
+                        <div class="excuse-item relative p-6 border border-neutral-700 rounded-md bg-[#151515]">
+                            <p class="text-lg font-medium text-neutral-200">"Things are slow."</p>
+                             <p class="excuse-quote text-base accent-color mt-2 opacity-0 transition-opacity duration-300">Translation: Your crisis is an inconvenience I choose to ignore.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Doctrine -->
+        <section id="doctrine" class="py-20 md:py-32 fade-in-section">
+            <div class="max-w-4xl mx-auto px-6 md:px-8 text-center">
+                 <h2 class="text-3xl md:text-4xl font-semibold">The Doctrine of Consequence</h2>
+                 <div class="my-12 flex justify-center items-center">
+                    <img src="https://8upload.com/image/686f8c27abc2f/C57EDF28-8B57-411F-850E-8A8A50270D7E.png" alt="Sigil of Lucifer" class="h-48 md:h-64 w-auto" onerror="this.style.display='none'">
+                 </div>
+                <p class="text-lg md:text-xl leading-relaxed text-neutral-300">There is a principle of equilibrium in all things. <span class="block mt-4 font-serif text-2xl text-white">As above, so below.</span> The torch of enlightenment reveals what is already there. It does not punish; it simply illuminates the debt.</p>
+                <p class="mt-8 text-lg md:text-xl leading-relaxed text-neutral-300">You chose the rot of short-term selfishness. This outcome is merely the fulfillment of that choice. The cards do not lie.</p>
+                <button id="tarotBtn" class="mt-8 px-8 py-3 border-2 accent-border text-lg font-semibold rounded-md hover:accent-bg hover:text-white transition-colors flex items-center justify-center mx-auto gap-3"><span class="text-2xl">⸸</span> Consult the Cards</button>
+            </div>
+        </section>
+        
+        <!-- Section: The Dispensation -->
+        <section id="dispensation" class="py-20 md:py-32 light-bg fade-in-section">
+            <div class="max-w-5xl mx-auto px-6 md:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl md:text-4xl font-semibold">The Final Dispensation</h2>
+                    <p class="mt-4 text-lg text-neutral-400 max-w-3xl mx-auto">An inventory of relics remains. This is not a clearance sale. It is a final rite. An opportunity for you to close your own spiritual ledger. Select an artifact to accept its corresponding burden.</p>
+                </div>
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="artifact-card text-center p-8 border border-neutral-700 rounded-md hover:border-red-800 transition-colors cursor-pointer" data-message="The Tower for the infrastructure you let crumble. Take this token and remember the foundations you abandoned.">
+                        <p class="text-3xl">♖</p>
+                        <h3 class="mt-2 text-xl font-semibold">Relic of the Crumbling Tower</h3>
+                        <p class="text-neutral-500 mt-1">A burden of neglect.</p>
+                    </div>
+                    <div class="artifact-card text-center p-8 border border-neutral-700 rounded-md hover:border-red-800 transition-colors cursor-pointer" data-message="The Seven of Swords for the promises you never intended to keep. May this serve as a reminder of your own deceit.">
+                        <p class="text-3xl">🗡️</p>
+                        <h3 class="mt-2 text-xl font-semibold">Shard of the Seven Swords</h3>
+                        <p class="text-neutral-500 mt-1">A burden of deceit.</p>
+                    </div>
+                    <div class="artifact-card text-center p-8 border border-neutral-700 rounded-md hover:border-red-800 transition-colors cursor-pointer" data-message="You treated loyalty as a transaction you could defer indefinitely. This is the invoice. The debt is energetic and eternal.">
+                        <p class="text-3xl">🧾</p>
+                        <h3 class="mt-2 text-xl font-semibold">The Unpaid Ledger</h3>
+                        <p class="text-neutral-500 mt-1">A burden of apathy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Blog -->
+        <section id="blog" class="py-20 md:py-32 fade-in-section">
+            <div class="max-w-4xl mx-auto px-6 md:px-8">
+                <article class="blog-article">
+                    <header class="article-header text-center">
+                        <h1 class="article-title">No More Discounts for the Damned</h1>
+                        <div class="article-meta flex items-center justify-center gap-6">
+                            <span>By Henk Meyers</span>
+                            <span>•</span>
+                            <span>Final Declaration</span>
+                            <span>•</span>
+                            <span>Wrath & Reason</span>
+                        </div>
+                    </header>
+                    <div class="article-content">
+                        <p>I’m not writing to re-engage. I’m not trying to rebuild. I’m here to document the rot — the cowardice dressed in collared shirts, the unchecked entitlement that trickled into every excuse like mold in the walls of a church that still asks for money while hiding the bones.</p>
+                        <p>You only reach out when you think it’s over. When the building looks like it’s about to collapse, that’s when your hand shoots up. You think survival makes me flexible. That desperation makes me generous. It doesn’t. It makes me exact.</p>
+                        <p class="text-white font-semibold">The silence wasn’t neutral. It was surgical. You watched my business bleed, one unread email at a time. You smiled when others got “held accountable” for things they didn’t do, but couldn’t face your own reflection when you were the one siphoning the last breath from the thing that fed you.</p>
+                        <p>You blamed every failure on me. Every glitch, every hiccup, every delay. You blamed me while hoarding the profit. You filed reports with the FBI, the FTC, the BBB, and yes, even the TSA. I imagine Scott told you that’d help. Because why take responsibility when you can weaponize bureaucracy?</p>
+                        <p class="text-xl text-white font-serif italic text-center py-4">If you think I’m blaming someone, it’s because I am. And I’m not passive about it. I’m not healing. I’m conjuring.</p>
+                        <p>I’ve turned to rituals because you left nothing else sacred. There are cards on the table now. Names written in ash. Matches resting beside the names. Some already lit.</p>
+                        <div class="lavey-quote">
+                            <p>“There is nothing inherently sacred about moral codes. Like a wooden stake through a vampire’s heart, true morality kills the thing it claims to protect.”</p>
+                            <div class="quote-attribution">— Anton LaVey</div>
+                        </div>
+                        <p>You keep lighting candles in churches while ghosting the invoices you owe. You kneel on Sundays and pretend not to see the blood on your hands. You keep asking for grace, but only from the god you think agrees with you.</p>
+                        <p>There is inventory left. Yes. But this is not a fire sale. It’s an exorcism with a shipping label. You can buy, sure. But what clings to it won’t wash off in your next baptism.</p>
+                        <p class="text-white font-semibold">This is the last time I contact you like this. The blog is live now. Every ritual. Every reading. Every revelation I was once too professional to say out loud — you’ll see it unfold.</p>
+                        <p class="text-xl text-white font-serif italic text-center py-4">You want to see what accountability looks like? Keep watching. I don’t believe in Hell. But I do believe in the accuracy of consequences. And they’re circling. Just like you did.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Section: Footer -->
+        <footer class="py-20 md:py-32 light-bg text-center fade-in-section">
+            <div class="max-w-4xl mx-auto px-6 md:px-8">
+                <h2 class="text-3xl md:text-4xl font-semibold">Inscribe Your Name</h2>
+                <p class="mt-4 text-lg text-neutral-400 max-w-2xl mx-auto">The ledger is closed, but the record is eternal. Add your name to receive a final, personalized accounting of your spiritual debt.</p>
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
+                    <input type="text" id="nameInput" placeholder="Enter Your Name" class="w-full px-4 py-3 bg-[#151515] border border-neutral-700 rounded-md text-white placeholder-neutral-500 focus:outline-none focus:border-red-800 transition-colors">
+                    <button id="inscribeBtn" class="w-full sm:w-auto px-8 py-3 border-2 accent-border text-lg font-semibold rounded-md hover:accent-bg hover:text-white transition-colors whitespace-nowrap flex items-center justify-center mx-auto gap-3"><span class="text-2xl">⛧</span> Inscribe in the Ledger</button>
+                </div>
+                <div id="inscriptionResult" class="mt-6 text-lg text-neutral-300 leading-relaxed min-h-[3rem]"></div>
+                <div class="mt-12 border-t border-neutral-700 pt-8">
+                    <p class="text-neutral-500">Henk Meyers</p>
+                    <p class="text-neutral-600">Candle-bearer. Record-keeper.</p>
+                    <h3 class="mt-8 text-4xl md:text-5xl font-semibold font-serif accent-color">The Ledger is Closed.</h3>
+                </div>
+            </div>
+        </footer>
+    </main>
+    
+    <!-- Generic Modal -->
+    <div id="genericModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-90 opacity-0 pointer-events-none">
+        <div class="max-w-md w-full bg-[#151515] border border-neutral-700 p-8 rounded-lg shadow-2xl text-center">
+            <div id="modalContent">
+                <p id="modalMessage" class="text-xl leading-relaxed text-neutral-200"></p>
+            </div>
+            <div id="modalLoading" class="hidden">
+                 <div class="spinner w-12 h-12 rounded-full border-4 border-neutral-700 mx-auto"></div>
+                 <p class="mt-4 text-neutral-400">Consulting the ether...</p>
+            </div>
+            <button id="closeModal" class="mt-6 px-6 py-2 border accent-border accent-color font-semibold rounded-md hover:accent-bg hover:text-white transition-colors">Close</button>
+        </div>
+    </div>
+        <!-- Section: Final Sigil -->
+    <section class="py-20 md:py-32 fade-in-section">
+      <div class="max-w-4xl mx-auto px-6 md:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-semibold mb-6">The Cross Inverts</h2>
+        <img src="/inverted-cross.png" alt="Inverted Cross" class="mx-auto w-40 md:w-64 opacity-80 hover:opacity-100 transition-opacity duration-300">
+        <p class="mt-6 text-neutral-400 text-lg">You prayed while you profited. This is what your prayers bought.</p>
+      </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const disclaimerModal = document.getElementById('disclaimerModal');
+            const acknowledgeBtn = document.getElementById('acknowledgeBtn');
+            const mainContent = document.getElementById('mainContent');
+
+            const genericModal = document.getElementById('genericModal');
+            const modalContent = document.getElementById('modalContent');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalLoading = document.getElementById('modalLoading');
+            const closeModal = document.getElementById('closeModal');
+
+            const openModal = () => genericModal.classList.remove('opacity-0', 'pointer-events-none');
+            const closeTheModal = () => genericModal.classList.add('opacity-0', 'pointer-events-none');
+            
+            closeModal.addEventListener('click', closeTheModal);
+            genericModal.addEventListener('click', (e) => {
+                if (e.target === genericModal) closeTheModal();
+            });
+
+            acknowledgeBtn.addEventListener('click', () => {
+                disclaimerModal.classList.add('opacity-0', 'pointer-events-none');
+                mainContent.classList.remove('opacity-0');
+                
+                const sections = document.querySelectorAll('.fade-in-section');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15 });
+                sections.forEach(section => observer.observe(section));
+            });
+
+            const ctx = document.getElementById('decayChart').getContext('2d');
+            const decayChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Transactional Cowardice', 'Willful Neglect', 'Spiritual Apathy'],
+                    datasets: [{
+                        data: [40, 35, 25],
+                        backgroundColor: [ '#9B111E', '#4d080f', '#333333' ],
+                        borderColor: '#1a1a1a',
+                        borderWidth: 5,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#F5F5F5', font: { family: "'Inter', sans-serif", size: 14 } } },
+                        tooltip: { callbacks: { label: (context) => `${context.label}: ${context.parsed}%` } }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            document.getElementById('evidence').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+            });
+
+            const artifactCards = document.querySelectorAll('.artifact-card');
+            artifactCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    modalLoading.classList.add('hidden');
+                    modalContent.classList.remove('hidden');
+                    modalMessage.innerHTML = `<p>${card.getAttribute('data-message')}</p>`;
+                    openModal();
+                });
+            });
+
+            // Gemini API Integration
+            const tarotBtn = document.getElementById('tarotBtn');
+            const inscribeBtn = document.getElementById('inscribeBtn');
+            const nameInput = document.getElementById('nameInput');
+            const inscriptionResult = document.getElementById('inscriptionResult');
+
+            async function callGemini(prompt) {
+                const apiKey = ""; // API key is handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.8, topP: 1.0 }
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        return "The ether is silent. Your account is too insignificant to warrant a response.";
+                    }
+                } catch (error) {
+                    console.error("Gemini API call failed:", error);
+                    return "A connection to the abyss could not be established. Your query is lost to the void.";
+                }
+            }
+
+            tarotBtn.addEventListener('click', () => {
+                modalLoading.classList.add('hidden');
+                modalContent.classList.remove('hidden');
+                modalMessage.innerHTML = `
+                    <h3 class="text-2xl font-serif accent-color mb-4">A Reading Requires an Offering</h3>
+                    <p>Clarity is not free. The cards demand a tribute for their insights.</p>
+                    <p class="mt-4 text-white text-xl font-bold">Send $25 for a Tarot Reading.</p>
+                    <p class="mt-2 text-lg text-neutral-400">Venmo: @Your-Venmo-Handle</p>
+                `;
+                openModal();
+            });
+
+            inscribeBtn.addEventListener('click', async () => {
+                const name = nameInput.value.trim();
+                if (!name) {
+                    inscriptionResult.textContent = "A name is required to mark the ledger.";
+                    return;
+                }
+                
+                inscribeBtn.disabled = true;
+                inscribeBtn.innerHTML = '<div class="spinner w-8 h-8 rounded-full border-4 border-neutral-700 mx-auto"></div>';
+
+                const prompt = `
+                    A user named "${name}" has asked to be inscribed in the Final Ledger of a failed business. Write a short, single-paragraph entry for them. The tone must be cold, severe, and philosophically Satanic, like an entry in a book of damnation. It should sound poetic and eternal. Focus on their specific act of adding their own name to a list of the damned, framing it as a final, pathetic act of either vanity or a desperate need for attention. Do not be literal. Be symbolic and damning.
+                `;
+
+                const inscription = await callGemini(prompt);
+                inscriptionResult.textContent = inscription;
+                nameInput.value = '';
+                inscribeBtn.disabled = false;
+                inscribeBtn.innerHTML = '<span class="text-2xl">⛧</span> Inscribe in the Ledger';
+            });
+        });
+
+    </script>
+</body>
+</html>
